@@ -6,7 +6,6 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import routes from "./routes/index.js";
-import healthRoutes from "./routes/health.js";
 import swaggerUi from "swagger-ui-express";
 import { openApiDocument } from "./config/openapi.js";
 import logger from "./config/logger.js";
@@ -67,7 +66,6 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument, {
 }));
 
 // Routes de l'application
-app.use("/health", healthRoutes);
 app.use(routes);
 
 // Gestionnaire pour les routes non trouvées

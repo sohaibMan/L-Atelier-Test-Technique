@@ -15,7 +15,6 @@ const server = createServer(app);
 server.listen(PORT, () => {
   console.log(`Serveur démarré sur ${SERVER_URL}`);
   console.log(`Documentation API : ${SERVER_URL}/api-docs`);
-  console.log(`Contrôle de santé : ${SERVER_URL}/health`);
 });
 
 // Arrêt gracieux
