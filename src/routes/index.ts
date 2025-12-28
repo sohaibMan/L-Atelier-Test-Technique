@@ -1,8 +1,9 @@
 import express from "express";
-import type { Request, Response } from "express";
+import playerRoutes from "./players.js";
 
 const router = express.Router();
 
-// todo - add home route
+// Routes joueurs de tennis
+router.use("/api/players", playerRoutes);
 
 export default router;
