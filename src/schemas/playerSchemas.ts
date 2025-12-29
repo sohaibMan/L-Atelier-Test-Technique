@@ -5,120 +5,128 @@ import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 extendZodWithOpenApi(z);
 
 // Schéma pour les données du pays
-export const CountrySchema = z.object({
-  picture: z.string().url().describe("URL de l'image du drapeau du pays"),
-  code: z.string().min(2).max(3).toUpperCase().describe("Code du pays (ISO)"),
-}).openapi({
-  title: "Country",
-  description: "Informations sur le pays du joueur"
-});
+export const CountrySchema = z
+  .object({
+    picture: z.string().url().describe("URL de l'image du drapeau du pays"),
+    code: z.string().min(2).max(3).toUpperCase().describe("Code du pays (ISO)"),
+  })
+  .openapi({
+    title: "Country",
+    description: "Informations sur le pays du joueur",
+  });
 
 // Schéma pour les données statistiques du joueur
-export const PlayerDataSchema = z.object({
-  rank: z.number().min(1).describe("Classement mondial du joueur"),
-  points: z.number().min(0).describe("Points ATP/WTA du joueur"),
-  weight: z
-    .number()
-    .min(30000)
-    .max(200000)
-    .describe("Poids du joueur en grammes"),
-  height: z
-    .number()
-    .min(140)
-    .max(250)
-    .describe("Taille du joueur en centimètres"),
-  age: z.number().min(16).max(50).describe("Âge du joueur"),
-  last: z
-    .array(z.number().min(0).max(1))
-    .length(5)
-    .describe("5 derniers résultats (1=victoire, 0=défaite)"),
-}).openapi({
-  title: "PlayerData",
-  description: "Données statistiques du joueur"
-});
+export const PlayerDataSchema = z
+  .object({
+    rank: z.number().min(1).describe("Classement mondial du joueur"),
+    points: z.number().min(0).describe("Points ATP/WTA du joueur"),
+    weight: z
+      .number()
+      .min(30000)
+      .max(200000)
+      .describe("Poids du joueur en grammes"),
+    height: z
+      .number()
+      .min(140)
+      .max(250)
+      .describe("Taille du joueur en centimètres"),
+    age: z.number().min(16).max(50).describe("Âge du joueur"),
+    last: z
+      .array(z.number().min(0).max(1))
+      .length(5)
+      .describe("5 derniers résultats (1=victoire, 0=défaite)"),
+  })
+  .openapi({
+    title: "PlayerData",
+    description: "Données statistiques du joueur",
+  });
 
 // Schéma de base pour un joueur
-export const PlayerSchema = z.object({
-  id: z.number().min(1).describe("Identifiant unique du joueur"),
-  firstname: z.string().min(2).max(50).describe("Prénom du joueur"),
-  lastname: z.string().min(2).max(50).describe("Nom de famille du joueur"),
-  shortname: z
-    .string()
-    .regex(/^[A-Z]\.[A-Z]{2,4}$/)
-    .describe("Nom court du joueur (ex: R.NAD)"),
-  sex: z.enum(["M", "F"]).describe("Sexe du joueur (M=Masculin, F=Féminin)"),
-  country: CountrySchema.describe("Informations sur le pays du joueur"),
-  picture: z.string().url().describe("URL de la photo du joueur"),
-  data: PlayerDataSchema.describe("Données statistiques du joueur"),
-  createdAt: z.string().datetime().describe("Date de création"),
-  updatedAt: z.string().datetime().describe("Date de dernière modification"),
-}).openapi({
-  title: "Player",
-  description: "Joueur de tennis avec toutes ses informations"
-});
+export const PlayerSchema = z
+  .object({
+    id: z.number().min(1).describe("Identifiant unique du joueur"),
+    firstname: z.string().min(2).max(50).describe("Prénom du joueur"),
+    lastname: z.string().min(2).max(50).describe("Nom de famille du joueur"),
+    shortname: z
+      .string()
+      .regex(/^[A-Z]\.[A-Z]{2,4}$/)
+      .describe("Nom court du joueur (ex: R.NAD)"),
+    sex: z.enum(["M", "F"]).describe("Sexe du joueur (M=Masculin, F=Féminin)"),
+    country: CountrySchema.describe("Informations sur le pays du joueur"),
+    picture: z.string().url().describe("URL de la photo du joueur"),
+    data: PlayerDataSchema.describe("Données statistiques du joueur"),
+    createdAt: z.string().datetime().describe("Date de création"),
+    updatedAt: z.string().datetime().describe("Date de dernière modification"),
+  })
+  .openapi({
+    title: "Player",
+    description: "Joueur de tennis avec toutes ses informations",
+  });
 
 // Schéma pour créer un joueur
-export const CreatePlayerSchema = z.object({
-  id: z
-    .number()
-    .min(1, "L'ID doit être supérieur à 0")
-    .describe("Identifiant unique du joueur"),
-  firstname: z
-    .string()
-    .min(2, "Le prénom doit contenir au moins 2 caractères")
-    .max(50, "Le prénom ne peut pas dépasser 50 caractères")
-    .trim()
-    .describe("Prénom du joueur"),
-  lastname: z
-    .string()
-    .min(2, "Le nom de famille doit contenir au moins 2 caractères")
-    .max(50, "Le nom de famille ne peut pas dépasser 50 caractères")
-    .trim()
-    .describe("Nom de famille du joueur"),
-  shortname: z
-    .string()
-    .regex(/^[A-Z]\.[A-Z]{2,4}$/, "Le format doit être X.XXX (ex: R.NAD)")
-    .describe("Nom court du joueur"),
-  sex: z
-    .enum(["M", "F"], {
-      message: "Le sexe doit être 'M' ou 'F'",
-    })
-    .describe("Sexe du joueur"),
-  country: z
-    .object({
-      picture: z.string().url("L'URL de l'image doit être valide"),
-      code: z.string().min(2).max(3).toUpperCase(),
-    })
-    .describe("Informations sur le pays"),
-  picture: z
-    .string()
-    .url("L'URL de l'image doit être valide")
-    .describe("Photo du joueur"),
-  data: z
-    .object({
-      rank: z.number().min(1, "Le classement doit être supérieur à 0"),
-      points: z.number().min(0, "Les points ne peuvent pas être négatifs"),
-      weight: z
-        .number()
-        .min(30000, "Le poids minimum est 30kg")
-        .max(200000, "Le poids maximum est 200kg"),
-      height: z
-        .number()
-        .min(140, "La taille minimum est 140cm")
-        .max(250, "La taille maximum est 250cm"),
-      age: z
-        .number()
-        .min(16, "L'âge minimum est 16 ans")
-        .max(50, "L'âge maximum est 50 ans"),
-      last: z
-        .array(z.number().min(0).max(1))
-        .length(5, "Exactement 5 résultats requis"),
-    })
-    .describe("Données statistiques"),
-}).openapi({
-  title: "CreatePlayer",
-  description: "Données requises pour créer un nouveau joueur"
-});
+export const CreatePlayerSchema = z
+  .object({
+    id: z
+      .number()
+      .min(1, "L'ID doit être supérieur à 0")
+      .describe("Identifiant unique du joueur"),
+    firstname: z
+      .string()
+      .min(2, "Le prénom doit contenir au moins 2 caractères")
+      .max(50, "Le prénom ne peut pas dépasser 50 caractères")
+      .trim()
+      .describe("Prénom du joueur"),
+    lastname: z
+      .string()
+      .min(2, "Le nom de famille doit contenir au moins 2 caractères")
+      .max(50, "Le nom de famille ne peut pas dépasser 50 caractères")
+      .trim()
+      .describe("Nom de famille du joueur"),
+    shortname: z
+      .string()
+      .regex(/^[A-Z]\.[A-Z]{2,4}$/, "Le format doit être X.XXX (ex: R.NAD)")
+      .describe("Nom court du joueur"),
+    sex: z
+      .enum(["M", "F"], {
+        message: "Le sexe doit être 'M' ou 'F'",
+      })
+      .describe("Sexe du joueur"),
+    country: z
+      .object({
+        picture: z.string().url("L'URL de l'image doit être valide"),
+        code: z.string().min(2).max(3).toUpperCase(),
+      })
+      .describe("Informations sur le pays"),
+    picture: z
+      .string()
+      .url("L'URL de l'image doit être valide")
+      .describe("Photo du joueur"),
+    data: z
+      .object({
+        rank: z.number().min(1, "Le classement doit être supérieur à 0"),
+        points: z.number().min(0, "Les points ne peuvent pas être négatifs"),
+        weight: z
+          .number()
+          .min(30000, "Le poids minimum est 30kg")
+          .max(200000, "Le poids maximum est 200kg"),
+        height: z
+          .number()
+          .min(140, "La taille minimum est 140cm")
+          .max(250, "La taille maximum est 250cm"),
+        age: z
+          .number()
+          .min(16, "L'âge minimum est 16 ans")
+          .max(50, "L'âge maximum est 50 ans"),
+        last: z
+          .array(z.number().min(0).max(1))
+          .length(5, "Exactement 5 résultats requis"),
+      })
+      .describe("Données statistiques"),
+  })
+  .openapi({
+    title: "CreatePlayer",
+    description: "Données requises pour créer un nouveau joueur",
+  });
 
 // Schéma pour mettre à jour un joueur
 export const UpdatePlayerSchema = z.object({
@@ -236,28 +244,38 @@ export const PlayerQuerySchema = z.object({
 });
 
 // Schéma pour les paramètres d'URL
-export const PlayerParamsSchema = z.object({
-  id: z
-    .string()
-    .min(1, "L'ID est requis")
-    .refine((val) => /^\d+$/.test(val), "L'ID doit être un nombre entier positif")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => !isNaN(val) && val > 0, "L'ID doit être un nombre positif")
-    .describe("Identifiant du joueur"),
-}).openapi({
-  title: "PlayerParams",
-  description: "Paramètres d'URL pour identifier un joueur"
-});
+export const PlayerParamsSchema = z
+  .object({
+    id: z
+      .string()
+      .min(1, "L'ID est requis")
+      .refine(
+        (val) => /^\d+$/.test(val),
+        "L'ID doit être un nombre entier positif"
+      )
+      .transform((val) => parseInt(val, 10))
+      .refine(
+        (val) => !isNaN(val) && val > 0,
+        "L'ID doit être un nombre positif"
+      )
+      .describe("Identifiant du joueur"),
+  })
+  .openapi({
+    title: "PlayerParams",
+    description: "Paramètres d'URL pour identifier un joueur",
+  });
 
 // Schémas de réponse
-export const PlayerResponseSchema = z.object({
-  success: z.boolean().describe("Statut de la réponse"),
-  data: PlayerSchema.describe("Données du joueur"),
-  message: z.string().optional().describe("Message de réponse"),
-}).openapi({
-  title: "PlayerResponse",
-  description: "Réponse contenant les données d'un joueur"
-});
+export const PlayerResponseSchema = z
+  .object({
+    success: z.boolean().describe("Statut de la réponse"),
+    data: PlayerSchema.describe("Données du joueur"),
+    message: z.string().optional().describe("Message de réponse"),
+  })
+  .openapi({
+    title: "PlayerResponse",
+    description: "Réponse contenant les données d'un joueur",
+  });
 
 export const PlayersListResponseSchema = z.object({
   success: z.boolean().describe("Statut de la réponse"),

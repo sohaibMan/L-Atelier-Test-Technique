@@ -15,7 +15,7 @@ const validateParams = (schema: z.ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsed = schema.parse(req.params);
-      req.params = parsed as any;
+      req.params = parsed as Record<string, string>;
       next();
     } catch (error: unknown) {
       const zodError = error as z.ZodError;
@@ -271,12 +271,13 @@ router.get("/", async (req: Request, res: Response) => {
     logger.info("Joueurs récupérés avec succès", {
       count: players.length,
       bestRank: players.length > 0 ? players[0]?.data.rank : null,
-      worstRank: players.length > 0 ? players[players.length - 1]?.data.rank : null,
+      worstRank:
+        players.length > 0 ? players[players.length - 1]?.data.rank : null,
     });
 
     res.json({
       success: true,
-      data: players.map(player => player.toPublicJSON()),
+      data: players.map((player) => player.toPublicJSON()),
       message: "Joueurs récupérés avec succès",
       count: players.length,
     });
@@ -495,9 +496,16 @@ router.post(
         data: player.toPublicJSON(),
         message: "Joueur créé avec succès",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error & {
+        message: string;
+        name?: string;
+        code?: number;
+        keyPattern?: Record<string, unknown>;
+        errors?: Record<string, { path: string; message: string }>;
+      };
       logger.error("Erreur lors de la création du joueur", {
-        error: error.message,
+        error: err.message,
         body: {
           id: req.body.id,
           name: `${req.body.firstname} ${req.body.lastname}`,
@@ -506,28 +514,28 @@ router.post(
       });
 
       // Gestion des erreurs spécifiques
-      if (error.message.includes("existe déjà")) {
+      if (err.message.includes("existe déjà")) {
         return res.status(409).json({
           success: false,
-          error: error.message,
+          error: err.message,
         });
       }
 
       // Gestion des erreurs de validation MongoDB
-      if (error.name === "ValidationError") {
+      if (err.name === "ValidationError") {
         return res.status(400).json({
           success: false,
           error: "Erreur de validation des données",
-          details: Object.values(error.errors).map((err: any) => ({
-            field: err.path,
-            message: err.message,
+          details: Object.values(err.errors || {}).map((validationErr) => ({
+            field: validationErr.path,
+            message: validationErr.message,
           })),
         });
       }
 
       // Gestion des erreurs de duplication MongoDB (index unique)
-      if (error.code === 11000) {
-        const field = Object.keys(error.keyPattern)[0];
+      if (err.code === 11000) {
+        const field = Object.keys(err.keyPattern || {})[0];
         return res.status(409).json({
           success: false,
           error: `La valeur du champ '${field}' est déjà utilisée`,

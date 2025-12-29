@@ -98,7 +98,8 @@ export class PlayerService {
       logger.info("Joueurs récupérés et triés avec succès", {
         count: players.length,
         bestRank: players.length > 0 ? players[0]?.data.rank : null,
-        worstRank: players.length > 0 ? players[players.length - 1]?.data.rank : null,
+        worstRank:
+          players.length > 0 ? players[players.length - 1]?.data.rank : null,
       });
 
       return players;
@@ -186,7 +187,10 @@ export class PlayerService {
 
       Object.entries(countryStats).forEach(([countryCode, stats]) => {
         const ratio = stats.total > 0 ? (stats.wins / stats.total) * 100 : 0;
-        if (ratio > bestCountry.ratio || (ratio === bestCountry.ratio && bestCountry.code === "")) {
+        if (
+          ratio > bestCountry.ratio ||
+          (ratio === bestCountry.ratio && bestCountry.code === "")
+        ) {
           bestCountry = {
             code: countryCode,
             ratio: Math.round(ratio * 100) / 100, // Arrondir à 2 décimales

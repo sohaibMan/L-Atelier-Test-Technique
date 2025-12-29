@@ -25,7 +25,10 @@ const MONGODB_OPTIONS = {
   compressors: ["zlib"] as ("none" | "snappy" | "zlib" | "zstd")[],
 
   // Heartbeat
-  heartbeatFrequencyMS: parseInt(process.env.MONGODB_HEARTBEAT_FREQUENCY || "10000", 10),
+  heartbeatFrequencyMS: parseInt(
+    process.env.MONGODB_HEARTBEAT_FREQUENCY || "10000",
+    10
+  ),
 };
 
 class DatabaseConnection {

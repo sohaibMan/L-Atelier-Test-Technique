@@ -16,54 +16,66 @@ const app = express();
 app.use(compression());
 
 // Sécurité - Headers de sécurité
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"]
-    }
-  }
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+  })
+);
 
 // CORS - Configuration des origines autorisées
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(",") || ["http://localhost:3000"],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(",") || [
+      "http://localhost:3000",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Rate limiting - Limitation du nombre de requêtes
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: parseInt(process.env.RATE_LIMIT_MAX || "100", 10), // Limite par IP
   message: {
-    error: "Trop de requêtes depuis cette IP, réessayez plus tard."
+    error: "Trop de requêtes depuis cette IP, réessayez plus tard.",
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 app.use(limiter);
 
 // Logging des requêtes HTTP
-app.use(morgan("combined", {
-  stream: {
-    write: (message: string) => logger.info(message.trim())
-  }
-}));
+app.use(
+  morgan("combined", {
+    stream: {
+      write: (message: string) => logger.info(message.trim()),
+    },
+  })
+);
 
 // Middlewares globaux
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Documentation Swagger générée automatiquement
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument, {
-  explorer: true,
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: "Documentation API L'Atelier"
-}));
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openApiDocument, {
+    explorer: true,
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Documentation API L'Atelier",
+  })
+);
 
 // Routes de l'application
 app.use(routes);
@@ -72,45 +84,48 @@ app.use(routes);
 app.use((req: Request, res: Response) => {
   logger.warn(`Route non trouvée: ${req.method} ${req.path}`, {
     ip: req.ip,
-    userAgent: req.get("User-Agent")
+    userAgent: req.get("User-Agent"),
   });
   res.status(404).json({ message: "Route non trouvée" });
 });
 
 // Gestionnaire d'erreurs pour les erreurs de parsing JSON
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  if (err instanceof SyntaxError && 'body' in err && 'type' in err && (err as any).type === 'entity.parse.failed') {
+  if (
+    err instanceof SyntaxError &&
+    "body" in err &&
+    "type" in err &&
+    (err as any).type === "entity.parse.failed"
+  ) {
     logger.warn("Erreur de parsing JSON", {
       error: err.message,
       path: req.path,
       method: req.method,
-      ip: req.ip
+      ip: req.ip,
     });
-    
+
     return res.status(400).json({
       success: false,
-      error: "Format JSON invalide"
+      error: "Format JSON invalide",
     });
   }
   next(err);
 });
 
 // Gestionnaire global d'erreurs
-app.use(
-  (err: Error, req: Request, res: Response, _next: NextFunction) => {
-    logger.error("Erreur interne du serveur", {
-      error: err.message,
-      stack: err.stack,
-      path: req.path,
-      method: req.method,
-      ip: req.ip
-    });
-    
-    res.status(500).json({
-      message: "Erreur interne du serveur",
-      ...(process.env.NODE_ENV === "development" && { error: err.message })
-    });
-  }
-);
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+  logger.error("Erreur interne du serveur", {
+    error: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method,
+    ip: req.ip,
+  });
+
+  res.status(500).json({
+    message: "Erreur interne du serveur",
+    ...(process.env.NODE_ENV === "development" && { error: err.message }),
+  });
+});
 
 export default app;
