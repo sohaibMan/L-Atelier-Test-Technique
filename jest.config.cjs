@@ -4,7 +4,14 @@ module.exports = {
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts', '**/?(*.)+(spec|test).js'],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      useESM: true,
+      tsconfig: 'tsconfig.test.json'
+    }],
+    '^.+\\.js$': ['ts-jest', {
+      useESM: true,
+      tsconfig: 'tsconfig.test.json'
+    }]
   },
   collectCoverageFrom: [
     'src/**/*.ts',
@@ -17,5 +24,84 @@ module.exports = {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
-  testTimeout: 30000
+  testTimeout: 30000,
+  extensionsToTreatAsEsm: ['.ts'],
+  projects: [
+    {
+      displayName: 'unit',
+      testMatch: ['<rootDir>/tests/unit/**/*.test.ts'],
+      setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+      preset: 'ts-jest',
+      testEnvironment: 'node',
+      transform: {
+        '^.+\\.ts$': ['ts-jest', {
+          useESM: true,
+          tsconfig: 'tsconfig.test.json'
+        }]
+      },
+      moduleNameMapper: {
+        '^(\\.{1,2}/.*)\\.js$': '$1',
+      },
+      extensionsToTreatAsEsm: ['.ts']
+    },
+    {
+      displayName: 'integration',
+      testMatch: ['<rootDir>/tests/integration/**/*.test.ts', '<rootDir>/tests/app.test.ts', '<rootDir>/tests/app.test.js'],
+      setupFilesAfterEnv: ['<rootDir>/tests/setup.js', '<rootDir>/tests/setup-database.js'],
+      preset: 'ts-jest',
+      testEnvironment: 'node',
+      transform: {
+        '^.+\\.ts$': ['ts-jest', {
+          useESM: true,
+          tsconfig: 'tsconfig.test.json'
+        }],
+        '^.+\\.js$': ['ts-jest', {
+          useESM: true,
+          tsconfig: 'tsconfig.test.json'
+        }]
+      },
+      moduleNameMapper: {
+        '^(\\.{1,2}/.*)\\.js$': '$1',
+      },
+      extensionsToTreatAsEsm: ['.ts']
+    },
+    {
+      displayName: 'e2e',
+      testMatch: ['<rootDir>/tests/e2e/**/*.test.ts'],
+      setupFilesAfterEnv: ['<rootDir>/tests/setup.js', '<rootDir>/tests/setup-database.js'],
+      preset: 'ts-jest',
+      testEnvironment: 'node',
+      transform: {
+        '^.+\\.ts$': ['ts-jest', {
+          useESM: true,
+          tsconfig: 'tsconfig.test.json'
+        }]
+      },
+      moduleNameMapper: {
+        '^(\\.{1,2}/.*)\\.js$': '$1',
+      },
+      extensionsToTreatAsEsm: ['.ts']
+    },
+    {
+      displayName: 'basic',
+      testMatch: ['<rootDir>/tests/basic.test.js', '<rootDir>/tests/simple.test.ts'],
+      setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+      preset: 'ts-jest',
+      testEnvironment: 'node',
+      transform: {
+        '^.+\\.ts$': ['ts-jest', {
+          useESM: true,
+          tsconfig: 'tsconfig.test.json'
+        }],
+        '^.+\\.js$': ['ts-jest', {
+          useESM: true,
+          tsconfig: 'tsconfig.test.json'
+        }]
+      },
+      moduleNameMapper: {
+        '^(\\.{1,2}/.*)\\.js$': '$1',
+      },
+      extensionsToTreatAsEsm: ['.ts']
+    }
+  ]
 };

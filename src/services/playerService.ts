@@ -97,8 +97,8 @@ export class PlayerService {
 
       logger.info("Joueurs récupérés et triés avec succès", {
         count: players.length,
-        bestRank: players.length > 0 ? players[0].data.rank : null,
-        worstRank: players.length > 0 ? players[players.length - 1].data.rank : null,
+        bestRank: players.length > 0 ? players[0]?.data.rank : null,
+        worstRank: players.length > 0 ? players[players.length - 1]?.data.rank : null,
       });
 
       return players;

@@ -4,10 +4,32 @@ node_modules/
 # build output
 dist/
 
-# env files
+# env files - SECURITY CRITICAL
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
+.env.staging
+
+# MongoDB keyfiles - SECURITY CRITICAL
+scripts/keyfile/mongodb-keyfile
+*.keyfile
+*.key
+
+# SSL certificates - SECURITY CRITICAL
+*.crt
+*.pem
+*.p12
+*.pfx
+ssl/
+certs/
+
+# Secrets and credentials - SECURITY CRITICAL
+secrets/
+credentials/
+*.secret
+*.credential
 
 # logs
 logs/
@@ -66,3 +88,16 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+# Docker volumes and data
+docker-data/
+mongodb-data/
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+
+# Security scan results
+security-scan-results/
+vulnerability-reports/

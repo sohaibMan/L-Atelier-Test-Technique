@@ -1,0 +1,76 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${PORT:-3000}
+      - HOST=${HOST:-0.0.0.0}
+      - SERVER_URL=${SERVER_URL:-http://localhost:3000}
+      - MEMORY_LIMIT_MB=${MEMORY_LIMIT_MB:-512}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-50}
+      - LOG_LEVEL=${LOG_LEVEL:-warn}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - JWT_SECRET=${JWT_SECRET}
+      - API_KEY=${API_KEY}
+      - MONGODB_URI=mongodb://${MONGO_APP_USERNAME:-app_user}:${MONGO_APP_PASSWORD:-dev_password}@mongodb-primary:27017/${MONGO_INITDB_DATABASE:-latelier_dev}?authSource=${MONGO_INITDB_DATABASE:-latelier_dev}
+      - MONGODB_MAX_POOL_SIZE=${MONGODB_MAX_POOL_SIZE:-10}
+      - MONGODB_SERVER_SELECTION_TIMEOUT=${MONGODB_SERVER_SELECTION_TIMEOUT:-5000}
+      - MONGODB_SOCKET_TIMEOUT=${MONGODB_SOCKET_TIMEOUT:-45000}
+      - REQUEST_SIZE_LIMIT=${REQUEST_SIZE_LIMIT:-10mb}
+      - UPLOAD_SIZE_LIMIT=${UPLOAD_SIZE_LIMIT:-5mb}
+      - DEBUG_MODE=${DEBUG_MODE:-false}
+      - ENABLE_API_DOCS=${ENABLE_API_DOCS:-false}
+      - ENABLE_REQUEST_LOGGING=${ENABLE_REQUEST_LOGGING:-false}
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT:-3000}${HEALTH_CHECK_PATH:-/api/players/stats}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - mongodb-primary
+    networks:
+      - app-network
+
+  # MongoDB Primary Node (Production with keyfile)
+  mongodb-primary:
+    image: mongo:7.0
+    container_name: mongodb-primary
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_APP_USERNAME: ${MONGO_APP_USERNAME}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./scripts/keyfile/mongodb-keyfile:/opt/keyfile/mongodb-keyfile:ro
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--keyFile", "/opt/keyfile/mongodb-keyfile"]
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
