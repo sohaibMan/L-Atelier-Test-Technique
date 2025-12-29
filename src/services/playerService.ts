@@ -87,6 +87,30 @@ export class PlayerService {
   }
 
   /**
+   * Récupérer tous les joueurs triés par classement (du meilleur au moins bon)
+   */
+  static async getAllPlayersSorted(): Promise<IPlayer[]> {
+    try {
+      logger.debug("Récupération de tous les joueurs triés par classement");
+
+      const players = await Player.find({}).sort({ "data.rank": 1 }); // Tri ascendant (rank 1 = meilleur)
+
+      logger.info("Joueurs récupérés et triés avec succès", {
+        count: players.length,
+        bestRank: players.length > 0 ? players[0].data.rank : null,
+        worstRank: players.length > 0 ? players[players.length - 1].data.rank : null,
+      });
+
+      return players;
+    } catch (error) {
+      logger.error("Erreur lors de la récupération des joueurs triés", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
+
+  /**
    * Récupérer un joueur par ID
    */
   static async getPlayerById(id: number): Promise<IPlayer | null> {
@@ -162,7 +186,7 @@ export class PlayerService {
 
       Object.entries(countryStats).forEach(([countryCode, stats]) => {
         const ratio = stats.total > 0 ? (stats.wins / stats.total) * 100 : 0;
-        if (ratio > bestCountry.ratio) {
+        if (ratio > bestCountry.ratio || (ratio === bestCountry.ratio && bestCountry.code === "")) {
           bestCountry = {
             code: countryCode,
             ratio: Math.round(ratio * 100) / 100, // Arrondir à 2 décimales

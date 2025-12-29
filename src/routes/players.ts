@@ -160,6 +160,141 @@ router.get("/stats", async (req: Request, res: Response) => {
 /**
  * @openapi
  * /api/players:
+ *   get:
+ *     summary: Récupérer tous les joueurs triés par classement
+ *     description: Retourne la liste de tous les joueurs triés du meilleur au moins bon (par classement)
+ *     tags: [Players]
+ *     responses:
+ *       200:
+ *         description: Liste des joueurs récupérée avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 17
+ *                       firstname:
+ *                         type: string
+ *                         example: "Rafael"
+ *                       lastname:
+ *                         type: string
+ *                         example: "Nadal"
+ *                       shortname:
+ *                         type: string
+ *                         example: "R.NAD"
+ *                       sex:
+ *                         type: string
+ *                         enum: [M, F]
+ *                         example: "M"
+ *                       country:
+ *                         type: object
+ *                         properties:
+ *                           picture:
+ *                             type: string
+ *                             format: uri
+ *                             example: "https://tenisu.latelier.co/resources/Espagne.png"
+ *                           code:
+ *                             type: string
+ *                             example: "ESP"
+ *                       picture:
+ *                         type: string
+ *                         format: uri
+ *                         example: "https://tenisu.latelier.co/resources/Nadal.png"
+ *                       data:
+ *                         type: object
+ *                         properties:
+ *                           rank:
+ *                             type: integer
+ *                             example: 1
+ *                           points:
+ *                             type: integer
+ *                             example: 1982
+ *                           weight:
+ *                             type: integer
+ *                             example: 85000
+ *                           height:
+ *                             type: integer
+ *                             example: 185
+ *                           age:
+ *                             type: integer
+ *                             example: 33
+ *                           last:
+ *                             type: array
+ *                             items:
+ *                               type: integer
+ *                               minimum: 0
+ *                               maximum: 1
+ *                             example: [1, 0, 0, 0, 1]
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                 message:
+ *                   type: string
+ *                   example: "Joueurs récupérés avec succès"
+ *                 count:
+ *                   type: integer
+ *                   example: 5
+ *                   description: "Nombre total de joueurs"
+ *       500:
+ *         description: Erreur interne du serveur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Erreur lors de la récupération des joueurs"
+ */
+router.get("/", async (req: Request, res: Response) => {
+  try {
+    logger.info("Récupération de tous les joueurs triés par classement");
+
+    const players = await PlayerService.getAllPlayersSorted();
+
+    logger.info("Joueurs récupérés avec succès", {
+      count: players.length,
+      bestRank: players.length > 0 ? players[0]?.data.rank : null,
+      worstRank: players.length > 0 ? players[players.length - 1]?.data.rank : null,
+    });
+
+    res.json({
+      success: true,
+      data: players.map(player => player.toPublicJSON()),
+      message: "Joueurs récupérés avec succès",
+      count: players.length,
+    });
+  } catch (error) {
+    logger.error("Erreur lors de la récupération des joueurs", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    res.status(500).json({
+      success: false,
+      error: "Erreur lors de la récupération des joueurs",
+    });
+  }
+});
+
+/**
+ * @openapi
+ * /api/players:
  *   post:
  *     summary: Créer un nouveau joueur
  *     description: Ajoute un nouveau joueur de tennis dans la base de données

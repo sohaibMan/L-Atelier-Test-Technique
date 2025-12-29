@@ -73,6 +73,11 @@ describe("Players API - End-to-End Tests", () => {
   };
 
   beforeAll(async () => {
+    // Disconnect any existing mongoose connection
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+    
     // Start in-memory MongoDB
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
@@ -159,7 +164,28 @@ describe("Players API - End-to-End Tests", () => {
         })
       });
 
-      // Step 5: Get statistics
+      // Step 5: Get all players sorted by rank
+      const allPlayersResponse = await request(app)
+        .get("/api/players")
+        .expect(200);
+
+      expect(allPlayersResponse.body).toMatchObject({
+        success: true,
+        message: "Joueurs récupérés avec succès",
+        data: expect.any(Array),
+        count: expect.any(Number)
+      });
+
+      // Verify players are sorted by rank (ascending)
+      const players = allPlayersResponse.body.data;
+      expect(players.length).toBeGreaterThan(0);
+      
+      // Check that players are sorted by rank (1, 2, 3, etc.)
+      for (let i = 1; i < players.length; i++) {
+        expect(players[i].data.rank).toBeGreaterThanOrEqual(players[i - 1].data.rank);
+      }
+
+      // Step 6: Get statistics
       const statsResponse = await request(app)
         .get("/api/players/stats")
         .expect(200);
@@ -339,6 +365,53 @@ describe("Players API - End-to-End Tests", () => {
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe("Paramètres d'URL invalides");
+    });
+
+    it("should retrieve all players sorted by rank", async () => {
+      // Create multiple players with different ranks and unique shortnames
+      const player1 = { 
+        ...validPlayerData, 
+        id: 1001, 
+        firstname: "Player",
+        lastname: "One",
+        shortname: "P.ONE",
+        data: { ...validPlayerData.data, rank: 3 } 
+      };
+      const player2 = { 
+        ...validPlayerData, 
+        id: 1002, 
+        firstname: "Player",
+        lastname: "Two",
+        shortname: "P.TWO",
+        data: { ...validPlayerData.data, rank: 1 } 
+      };
+      const player3 = { 
+        ...validPlayerData, 
+        id: 1003, 
+        firstname: "Player",
+        lastname: "Three",
+        shortname: "P.THR",
+        data: { ...validPlayerData.data, rank: 2 } 
+      };
+
+      await request(app).post("/api/players").send(player1).expect(201);
+      await request(app).post("/api/players").send(player2).expect(201);
+      await request(app).post("/api/players").send(player3).expect(201);
+
+      const response = await request(app)
+        .get("/api/players")
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe("Joueurs récupérés avec succès");
+      expect(response.body.data).toBeInstanceOf(Array);
+      expect(response.body.count).toBe(4); // 3 new players + 1 from beforeEach
+
+      // Verify players are sorted by rank (ascending: 1, 2, 3, ...)
+      const players = response.body.data;
+      expect(players[0].data.rank).toBe(1); // Player Two
+      expect(players[1].data.rank).toBe(2); // Player Three
+      expect(players[2].data.rank).toBe(3); // Player One or validPlayerData
     });
   });
 
@@ -573,7 +646,7 @@ describe("Players API - End-to-End Tests", () => {
         const playerData = {
           ...validPlayerData,
           id: 700 + i,
-          shortname: `T.${i.toString().padStart(3, "0")}`
+          shortname: `T.${String.fromCharCode(65 + i)}${String.fromCharCode(65 + i)}${String.fromCharCode(65 + i)}`
         };
         
         promises.push(
@@ -654,13 +727,17 @@ describe("Players API - End-to-End Tests", () => {
     it("should calculate median height correctly with odd number of players", async () => {
       // Create 3 players with heights: 170, 180, 190
       const players = [
-        { ...validPlayerData, id: 501, data: { ...validPlayerData.data, height: 170 } },
-        { ...validPlayerData, id: 502, data: { ...validPlayerData.data, height: 180 } },
-        { ...validPlayerData, id: 503, data: { ...validPlayerData.data, height: 190 } }
+        { ...validPlayerData, id: 501, shortname: "P.AAA", data: { ...validPlayerData.data, height: 170 } },
+        { ...validPlayerData, id: 502, shortname: "P.BBB", data: { ...validPlayerData.data, height: 180 } },
+        { ...validPlayerData, id: 503, shortname: "P.CCC", data: { ...validPlayerData.data, height: 190 } }
       ];
 
       for (const player of players) {
-        await request(app).post("/api/players").send(player);
+        const createResponse = await request(app).post("/api/players").send(player);
+        if (createResponse.status !== 201) {
+          console.log("Player creation failed:", createResponse.body);
+        }
+        expect(createResponse.status).toBe(201); // Ensure player creation succeeds
       }
 
       const response = await request(app)
@@ -674,14 +751,18 @@ describe("Players API - End-to-End Tests", () => {
     it("should calculate median height correctly with even number of players", async () => {
       // Create 4 players with heights: 170, 180, 190, 200
       const players = [
-        { ...validPlayerData, id: 401, data: { ...validPlayerData.data, height: 170 } },
-        { ...validPlayerData, id: 402, data: { ...validPlayerData.data, height: 180 } },
-        { ...validPlayerData, id: 403, data: { ...validPlayerData.data, height: 190 } },
-        { ...validPlayerData, id: 404, data: { ...validPlayerData.data, height: 200 } }
+        { ...validPlayerData, id: 401, shortname: "P.AAA", data: { ...validPlayerData.data, height: 170 } },
+        { ...validPlayerData, id: 402, shortname: "P.BBB", data: { ...validPlayerData.data, height: 180 } },
+        { ...validPlayerData, id: 403, shortname: "P.CCC", data: { ...validPlayerData.data, height: 190 } },
+        { ...validPlayerData, id: 404, shortname: "P.DDD", data: { ...validPlayerData.data, height: 200 } }
       ];
 
       for (const player of players) {
-        await request(app).post("/api/players").send(player);
+        const createResponse = await request(app).post("/api/players").send(player);
+        if (createResponse.status !== 201) {
+          console.log("Player creation failed:", createResponse.body);
+        }
+        expect(createResponse.status).toBe(201); // Ensure player creation succeeds
       }
 
       const response = await request(app)

@@ -125,7 +125,7 @@ Environnement actuel : **${NODE_ENV}**
     `,
     contact: {
       name: "L'Atelier",
-      email: "contact@latelier.com",
+      email: "sohaib.manah.contact@gmail.com",
     },
   },
   servers: [

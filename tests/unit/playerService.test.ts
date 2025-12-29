@@ -42,10 +42,15 @@ describe("PlayerService", () => {
         _id: "mockObjectId",
         createdAt: new Date(),
         updatedAt: new Date(),
-        save: jest.fn().mockResolvedValue(validPlayerData)
+        toPublicJSON: jest.fn().mockReturnValue(validPlayerData),
+        save: jest.fn().mockResolvedValue({
+          ...validPlayerData,
+          _id: "mockObjectId",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
       };
       
-      MockedPlayer.prototype.save = jest.fn().mockResolvedValue(mockSavedPlayer);
       MockedPlayer.mockImplementation(() => mockSavedPlayer as any);
 
       const result = await PlayerService.createPlayer(validPlayerData);
@@ -53,7 +58,17 @@ describe("PlayerService", () => {
       expect(MockedPlayer.findOne).toHaveBeenCalledTimes(2);
       expect(MockedPlayer.findOne).toHaveBeenCalledWith({ id: validPlayerData.id });
       expect(MockedPlayer.findOne).toHaveBeenCalledWith({ shortname: validPlayerData.shortname });
-      expect(result).toEqual(mockSavedPlayer);
+      expect(result).toMatchObject({
+        _id: "mockObjectId",
+        id: validPlayerData.id,
+        firstname: validPlayerData.firstname,
+        lastname: validPlayerData.lastname,
+        shortname: validPlayerData.shortname,
+        sex: validPlayerData.sex,
+        country: validPlayerData.country,
+        picture: validPlayerData.picture,
+        data: validPlayerData.data
+      });
     });
 
     it("should throw error if player ID already exists", async () => {

@@ -4,16 +4,15 @@ import logger from "./logger.js";
 // Configuration de la connexion MongoDB
 const MONGODB_URI =
   process.env.MONGODB_URI ||
-  `mongodb://${process.env.MONGO_APP_USERNAME || "app_user"}:${process.env.MONGO_APP_PASSWORD || "app_password123"}@localhost:27017,localhost:27018,localhost:27019/${process.env.MONGO_INITDB_DATABASE || "latelier_dev"}?replicaSet=rs0&authSource=${process.env.MONGO_INITDB_DATABASE || "latelier_dev"}`;
+  `mongodb://${process.env.MONGO_APP_USERNAME || "app_user"}:${process.env.MONGO_APP_PASSWORD || "dev_password"}@localhost:27017/${process.env.MONGO_INITDB_DATABASE || "latelier_dev"}?authSource=${process.env.MONGO_INITDB_DATABASE || "latelier_dev"}`;
 const MONGODB_OPTIONS = {
-  // Options de connexion pour le replica set
+  // Options de connexion
   maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL_SIZE || "10", 10),
   serverSelectionTimeoutMS: parseInt(
     process.env.MONGODB_SERVER_SELECTION_TIMEOUT || "5000",
     10
   ),
   socketTimeoutMS: parseInt(process.env.MONGODB_SOCKET_TIMEOUT || "45000", 10),
-  bufferMaxEntries: 0,
 
   // Options de retry
   retryWrites: true,
@@ -26,7 +25,7 @@ const MONGODB_OPTIONS = {
   compressors: ["zlib"] as ("none" | "snappy" | "zlib" | "zstd")[],
 
   // Heartbeat
-  heartbeatFrequencyMS: 10000,
+  heartbeatFrequencyMS: parseInt(process.env.MONGODB_HEARTBEAT_FREQUENCY || "10000", 10),
 };
 
 class DatabaseConnection {

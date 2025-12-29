@@ -240,6 +240,7 @@ export const PlayerParamsSchema = z.object({
   id: z
     .string()
     .min(1, "L'ID est requis")
+    .refine((val) => /^\d+$/.test(val), "L'ID doit être un nombre entier positif")
     .transform((val) => parseInt(val, 10))
     .refine((val) => !isNaN(val) && val > 0, "L'ID doit être un nombre positif")
     .describe("Identifiant du joueur"),

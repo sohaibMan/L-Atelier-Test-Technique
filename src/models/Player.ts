@@ -135,6 +135,7 @@ const playerSchema = new Schema<IPlayer>(
       required: [true, "Le nom court est requis"],
       trim: true,
       uppercase: true,
+      unique: true,
       match: [
         /^[A-Z]\.[A-Z]{2,4}$/,
         "Le format du nom court doit être X.XXX (ex: R.NAD)",
@@ -185,7 +186,7 @@ const playerSchema = new Schema<IPlayer>(
 );
 
 // Index pour optimiser les performances
-playerSchema.index({ id: 1 }, { unique: true });
+// Note: L'index unique sur 'id' est déjà créé par unique: true dans la définition du schéma
 playerSchema.index({ "data.rank": 1 });
 playerSchema.index({ sex: 1 });
 playerSchema.index({ "country.code": 1 });

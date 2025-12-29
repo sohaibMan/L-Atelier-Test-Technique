@@ -77,6 +77,24 @@ app.use((req: Request, res: Response) => {
   res.status(404).json({ message: "Route non trouvée" });
 });
 
+// Gestionnaire d'erreurs pour les erreurs de parsing JSON
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof SyntaxError && 'body' in err && 'type' in err && (err as any).type === 'entity.parse.failed') {
+    logger.warn("Erreur de parsing JSON", {
+      error: err.message,
+      path: req.path,
+      method: req.method,
+      ip: req.ip
+    });
+    
+    return res.status(400).json({
+      success: false,
+      error: "Format JSON invalide"
+    });
+  }
+  next(err);
+});
+
 // Gestionnaire global d'erreurs
 app.use(
   (err: Error, req: Request, res: Response, _next: NextFunction) => {
