@@ -10,7 +10,7 @@ import logger from "../config/logger.js";
 
 const router = Router();
 
-// Middleware de validation pour les paramètres
+// Parameter validation middleware
 const validateParams = (schema: z.ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -33,7 +33,7 @@ const validateParams = (schema: z.ZodSchema) => {
   };
 };
 
-// Middleware de validation pour le body
+// Body validation middleware
 const validateBody = (schema: z.ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -59,8 +59,8 @@ const validateBody = (schema: z.ZodSchema) => {
  * @openapi
  * /api/players/stats:
  *   get:
- *     summary: Récupérer les statistiques spécifiques des joueurs
- *     description: Retourne les statistiques suivantes - Pays avec le meilleur ratio de victoires, IMC moyen, médiane des tailles
+ *     summary: Get player statistics
+ *     description: Returns country with best win rate, average BMI, and height median
  *     tags: [Players]
  *     responses:
  *       200:
@@ -161,7 +161,7 @@ router.get("/stats", async (req: Request, res: Response) => {
  * @openapi
  * /api/players:
  *   get:
- *     summary: Récupérer tous les joueurs triés par classement
+ *     summary: Get all players sorted by ranking
  *     description: Retourne la liste de tous les joueurs triés du meilleur au moins bon (par classement)
  *     tags: [Players]
  *     responses:
@@ -297,7 +297,7 @@ router.get("/", async (req: Request, res: Response) => {
  * @openapi
  * /api/players:
  *   post:
- *     summary: Créer un nouveau joueur
+ *     summary: Create a new player
  *     description: Ajoute un nouveau joueur de tennis dans la base de données
  *     tags: [Players]
  *     requestBody:
@@ -554,7 +554,7 @@ router.post(
  * @openapi
  * /api/players/{id}:
  *   get:
- *     summary: Récupérer un joueur par ID
+ *     summary: Get player by ID
  *     description: Récupère les informations complètes d'un joueur de tennis grâce à son ID
  *     tags: [Players]
  *     parameters:

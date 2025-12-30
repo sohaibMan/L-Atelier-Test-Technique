@@ -88,5 +88,5 @@ jobs:
       run: |
         docker run -d --name test-container -p 3000:3000 latelier-api:latest
         sleep 10
-        curl -f http://localhost:3000/health || exit 1
+        curl -f http://localhost:3000/api/health || exit 1
         docker stop test-container

@@ -38,16 +38,16 @@ export const openApiDocument = generator.generateDocument({
     description: `
 # API Tennis L'Atelier
 
-Cette API permet de gérer les joueurs de tennis avec des fonctionnalités de création, récupération et statistiques.
+This API manages tennis players with creation, retrieval and statistics features.
 
-## Fonctionnalités
+## Features
 
-### Gestion des joueurs
-- **POST /api/players** : Créer un nouveau joueur de tennis
-- **GET /api/players/{id}** : Récupérer les informations d'un joueur spécifique
+### Player Management
+- **POST /api/players** : Create a new tennis player
+- **GET /api/players/{id}** : Get specific player information
 
-### Statistiques spécifiques
-- **GET /api/players/stats** : Retourne des statistiques calculées :
+### Specific Statistics
+- **GET /api/players/stats** : Returns calculated statistics :
   - Pays avec le meilleur ratio de parties gagnées
   - IMC moyen de tous les joueurs
   - Médiane de la taille des joueurs
@@ -78,9 +78,9 @@ L'API utilise MongoDB en configuration replica set (cluster) avec 3 nœuds pour 
   - **ID 65** : Stan Wawrinka (Rank 21, SUI) - Taille: 183cm, Poids: 81kg
   - **ID 95** : Venus Williams (Rank 52, USA) - Taille: 185cm, Poids: 74kg
 
-## Exemples d'utilisation
+## Usage Examples
 
-### Créer un nouveau joueur
+### Create a new player
 \`\`\`bash
 curl -X POST http://localhost:3000/api/players \\
   -H "Content-Type: application/json" \\
@@ -106,18 +106,18 @@ curl -X POST http://localhost:3000/api/players \\
   }'
 \`\`\`
 
-### Récupérer un joueur
+### Get a player
 \`GET /api/players/123\`
 
-### Récupérer les statistiques
+### Get statistics
 \`GET /api/players/stats\`
 
-## Gestion des erreurs
+## Error Handling
 
-- **400** : Données invalides (validation échouée)
-- **409** : Conflit (ID ou nom court déjà utilisé)
-- **404** : Joueur non trouvé
-- **500** : Erreur interne du serveur
+- **400** : Invalid data (validation failed)
+- **409** : Conflict (ID or shortname already used)
+- **404** : Player not found
+- **500** : Internal server error
 
 ## Environnement
 

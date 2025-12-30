@@ -1,6 +1,6 @@
 import winston from "winston";
 
-// Configuration du logger
+// Configuration du logger pour CloudWatch uniquement
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || "info",
   format: winston.format.combine(
@@ -10,32 +10,20 @@ const logger = winston.createLogger({
   ),
   defaultMeta: { service: "latelier-api" },
   transports: [
-    // Écriture des logs d'erreur dans error.log
-    new winston.transports.File({
-      filename: "logs/error.log",
-      level: "error",
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-    // Écriture de tous les logs dans combined.log
-    new winston.transports.File({
-      filename: "logs/combined.log",
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
+    // Uniquement la console pour CloudWatch/ECS
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.colorize(),
+        winston.format.printf(({ timestamp, level, message, ...meta }) => {
+          const metaStr = Object.keys(meta).length
+            ? JSON.stringify(meta, null, 2)
+            : "";
+          return `${timestamp} [${level}]: ${message} ${metaStr}`;
+        })
+      ),
     }),
   ],
 });
-
-// En développement, afficher aussi dans la console
-if (process.env.NODE_ENV !== "production") {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      ),
-    })
-  );
-}
 
 export default logger;

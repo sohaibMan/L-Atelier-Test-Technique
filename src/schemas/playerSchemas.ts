@@ -63,7 +63,7 @@ export const PlayerSchema = z
     description: "Joueur de tennis avec toutes ses informations",
   });
 
-// Schéma pour créer un joueur
+// Schema for creating a player
 export const CreatePlayerSchema = z
   .object({
     id: z
@@ -125,10 +125,10 @@ export const CreatePlayerSchema = z
   })
   .openapi({
     title: "CreatePlayer",
-    description: "Données requises pour créer un nouveau joueur",
+    description: "Required data to create a new player",
   });
 
-// Schéma pour mettre à jour un joueur
+// Schema for updating a player
 export const UpdatePlayerSchema = z.object({
   firstname: z
     .string()

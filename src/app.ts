@@ -6,8 +6,6 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import routes from "./routes/index.js";
-import swaggerUi from "swagger-ui-express";
-import { openApiDocument } from "./config/openapi.js";
 import logger from "./config/logger.js";
 
 const app = express();
@@ -22,10 +20,24 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        imgSrc: ["'self'", "data:", "https:", "http:"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'", "data:"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+        // More permissive CSP for Swagger UI assets
+        workerSrc: ["'self'", "blob:"],
+        childSrc: ["'self'"],
+        manifestSrc: ["'self'"],
       },
     },
+    // Disable problematic headers for HTTP deployments
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false,
+    originAgentCluster: false,
   })
 );
 
@@ -65,17 +77,6 @@ app.use(
 // Middlewares globaux
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// Documentation Swagger générée automatiquement
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(openApiDocument, {
-    explorer: true,
-    customCss: ".swagger-ui .topbar { display: none }",
-    customSiteTitle: "Documentation API L'Atelier",
-  })
-);
 
 // Routes de l'application
 app.use(routes);

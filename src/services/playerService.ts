@@ -107,13 +107,16 @@ export class PlayerService {
       logger.error("Erreur lors de la récupération des joueurs triés", {
         error: error instanceof Error ? error.message : String(error),
       });
-      
+
       // If it's a database connection timeout, return empty array instead of throwing
-      if (error instanceof Error && error.message.includes('buffering timed out')) {
+      if (
+        error instanceof Error &&
+        error.message.includes("buffering timed out")
+      ) {
         logger.warn("Database connection timeout, returning empty array");
         return [];
       }
-      
+
       throw error;
     }
   }
@@ -144,13 +147,16 @@ export class PlayerService {
         error: error instanceof Error ? error.message : String(error),
         id,
       });
-      
+
       // If it's a database connection timeout, return null instead of throwing
-      if (error instanceof Error && error.message.includes('buffering timed out')) {
+      if (
+        error instanceof Error &&
+        error.message.includes("buffering timed out")
+      ) {
         logger.warn("Database connection timeout, returning null", { id });
         return null;
       }
-      
+
       throw error;
     }
   }
@@ -221,32 +227,34 @@ export class PlayerService {
         .map((player) => {
           const weightKg = player.data.weight / 1000; // Convertir grammes en kg
           const heightM = player.data.height / 100; // Convertir cm en m
-          
+
           // Vérifier les divisions par zéro
           if (weightKg <= 0) {
             logger.warn("Poids invalide détecté", {
               playerId: player.id,
               playerName: `${player.firstname} ${player.lastname}`,
-              weight: player.data.weight
+              weight: player.data.weight,
             });
             return null; // Exclure ce joueur du calcul
           }
-          
+
           if (heightM <= 0) {
             logger.warn("Taille invalide détectée", {
               playerId: player.id,
               playerName: `${player.firstname} ${player.lastname}`,
-              height: player.data.height
+              height: player.data.height,
             });
             return null; // Exclure ce joueur du calcul
           }
-          
+
           return weightKg / (heightM * heightM);
         })
         .filter((imc): imc is number => imc !== null); // Filtrer les valeurs nulles
-      
+
       if (imcValues.length === 0) {
-        throw new Error("Aucun joueur avec des données valides pour calculer l'IMC");
+        throw new Error(
+          "Aucun joueur avec des données valides pour calculer l'IMC"
+        );
       }
 
       const averageIMC =

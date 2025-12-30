@@ -77,13 +77,19 @@ const playerDataSchema = new Schema<IPlayerData>(
     weight: {
       type: Number,
       required: [true, "Le poids est requis"],
-      min: [30000, "Le poids doit être d'au moins 30kg (30000g)"],
+      min: [
+        1,
+        "Le poids doit être supérieur à 0 (division par zéro interdite)",
+      ],
       max: [200000, "Le poids ne peut pas dépasser 200kg (200000g)"],
     },
     height: {
       type: Number,
       required: [true, "La taille est requise"],
-      min: [140, "La taille doit être d'au moins 140cm"],
+      min: [
+        1,
+        "La taille doit être supérieure à 0 (division par zéro interdite)",
+      ],
       max: [250, "La taille ne peut pas dépasser 250cm"],
     },
     age: {
@@ -207,31 +213,6 @@ playerSchema.methods.toPublicJSON = function () {
     updatedAt: this.updatedAt,
   };
 };
-
-// Méthodes statiques (unused but kept for future use)
-// playerSchema.statics.findByRank = function(rank: number) {
-//   return this.findOne({ "data.rank": rank });
-// };
-
-// playerSchema.statics.findBySex = function(sex: "M" | "F") {
-//   return this.find({ sex });
-// };
-
-// playerSchema.statics.findByCountry = function(countryCode: string) {
-//   return this.find({ "country.code": countryCode.toUpperCase() });
-// };
-
-// playerSchema.statics.getTopPlayers = function(limit: number = 10) {
-//   return this.find().sort({ "data.rank": 1 }).limit(limit);
-// };
-
-// Interface pour les méthodes statiques (unused but kept for future use)
-// interface IPlayerModel extends mongoose.Model<IPlayer> {
-//   findByRank(rank: number): Promise<IPlayer | null>;
-//   findBySex(sex: "M" | "F"): Promise<IPlayer[]>;
-//   findByCountry(countryCode: string): Promise<IPlayer[]>;
-//   getTopPlayers(limit?: number): Promise<IPlayer[]>;
-// }
 
 // Middleware pre-save pour la validation
 playerSchema.pre("save", function () {

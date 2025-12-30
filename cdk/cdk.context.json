@@ -1,0 +1,25 @@
+{
+  "availability-zones:account=273528188531:region=eu-west-3": [
+    "eu-west-3a",
+    "eu-west-3b",
+    "eu-west-3c"
+  ],
+  "acknowledged-issue-numbers": [
+    34892
+  ],
+  "availability-zones:account=273528188531:region=eu-west-2": [
+    "eu-west-2a",
+    "eu-west-2b",
+    "eu-west-2c"
+  ],
+  "availability-zones:account=273528188531:region=me-central-1": [
+    "me-central-1a",
+    "me-central-1b",
+    "me-central-1c"
+  ],
+  "availability-zones:account=273528188531:region=eu-central-1": [
+    "eu-central-1a",
+    "eu-central-1b",
+    "eu-central-1c"
+  ]
+}

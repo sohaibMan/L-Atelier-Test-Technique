@@ -101,3 +101,20 @@ mongodb-data/
 # Security scan results
 security-scan-results/
 vulnerability-reports/
+
+# CDK build artifacts
+cdk.out/
+cdk/cdk.out/
+*.d.ts
+cdk/lib/*.js
+cdk/lib/*.d.ts
+cdk/app.js
+cdk/app.d.ts
+
+# Scripts build artifacts
+scripts/dist/
+scripts/*.js
+scripts/*.d.ts
+
+# AWS deployment info
+deployment-info.json

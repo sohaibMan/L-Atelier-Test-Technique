@@ -6,6 +6,7 @@ services:
       - "${PORT:-3000}:${PORT:-3000}"
     environment:
       - NODE_ENV=${NODE_ENV:-development}
+      - DOCKER_ENV=true
       - PORT=${PORT:-3000}
       - HOST=${HOST:-0.0.0.0}
       - SERVER_URL=${SERVER_URL:-http://localhost:3000}
@@ -15,7 +16,11 @@ services:
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001}
       - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret}
       - API_KEY=${API_KEY:-dev-api-key}
-      - MONGODB_URI=mongodb://${MONGO_APP_USERNAME:-app_user}:${MONGO_APP_PASSWORD:-dev_password}@mongodb:27017/${MONGO_INITDB_DATABASE:-latelier_dev}?authSource=${MONGO_INITDB_DATABASE:-latelier_dev}
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_APP_USERNAME=${MONGO_APP_USERNAME:-app_user}
+      - MONGO_APP_PASSWORD=${MONGO_APP_PASSWORD:-dev_password}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE:-latelier_dev}
       - MONGODB_MAX_POOL_SIZE=${MONGODB_MAX_POOL_SIZE:-10}
       - MONGODB_SERVER_SELECTION_TIMEOUT=${MONGODB_SERVER_SELECTION_TIMEOUT:-5000}
       - MONGODB_SOCKET_TIMEOUT=${MONGODB_SOCKET_TIMEOUT:-45000}

@@ -27,6 +27,13 @@ export default [
     },
   },
   {
+    files: ['src/**/*.d.ts'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-unused-vars': 'off',
+    },
+  },
+  {
     ignores: ['dist/', 'node_modules/', 'coverage/', 'logs/'],
   },
 ];
