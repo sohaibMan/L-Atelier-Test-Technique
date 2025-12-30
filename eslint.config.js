@@ -34,6 +34,13 @@ export default [
     },
   },
   {
+    files: ['src/config/database.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off', // Allow any types in database config for error handling
+      'no-console': 'off', // Allow console statements in database config for debugging
+    },
+  },
+  {
     ignores: ['dist/', 'node_modules/', 'coverage/', 'logs/'],
   },
 ];

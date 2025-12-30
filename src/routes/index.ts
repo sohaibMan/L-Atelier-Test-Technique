@@ -55,7 +55,7 @@ router.use("/api-docs", (req, res, next) => {
   res.removeHeader("Origin-Agent-Cluster");
   res.removeHeader("Cross-Origin-Resource-Policy");
   res.removeHeader("Content-Security-Policy");
-  
+
   // Set minimal safe headers for Swagger UI
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
