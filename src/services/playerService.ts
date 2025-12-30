@@ -25,7 +25,7 @@ export interface CreatePlayerData {
 
 export class PlayerService {
   /**
-   * Créer un nouveau joueur
+   * Create a new player
    */
   static async createPlayer(playerData: CreatePlayerData): Promise<IPlayer> {
     try {
@@ -87,7 +87,7 @@ export class PlayerService {
   }
 
   /**
-   * Récupérer tous les joueurs triés par classement (du meilleur au moins bon)
+   * Get all players sorted by ranking (best to worst)
    */
   static async getAllPlayersSorted(): Promise<IPlayer[]> {
     try {
@@ -107,12 +107,19 @@ export class PlayerService {
       logger.error("Erreur lors de la récupération des joueurs triés", {
         error: error instanceof Error ? error.message : String(error),
       });
+      
+      // If it's a database connection timeout, return empty array instead of throwing
+      if (error instanceof Error && error.message.includes('buffering timed out')) {
+        logger.warn("Database connection timeout, returning empty array");
+        return [];
+      }
+      
       throw error;
     }
   }
 
   /**
-   * Récupérer un joueur par ID
+   * Get player by ID
    */
   static async getPlayerById(id: number): Promise<IPlayer | null> {
     try {
@@ -137,18 +144,25 @@ export class PlayerService {
         error: error instanceof Error ? error.message : String(error),
         id,
       });
+      
+      // If it's a database connection timeout, return null instead of throwing
+      if (error instanceof Error && error.message.includes('buffering timed out')) {
+        logger.warn("Database connection timeout, returning null", { id });
+        return null;
+      }
+      
       throw error;
     }
   }
 
   /**
-   * Récupérer les statistiques spécifiques demandées
+   * Get specific statistics as requested
    */
   static async getSpecificStats() {
     try {
-      logger.debug("Récupération des statistiques spécifiques");
+      logger.debug("Getting specific statistics");
 
-      // Récupérer tous les joueurs pour les calculs
+      // Get all players for calculations
       const players = await Player.find({}).lean();
 
       if (players.length === 0) {
@@ -203,11 +217,37 @@ export class PlayerService {
 
       // 2. Calculer l'IMC moyen de tous les joueurs
       // IMC = poids (kg) / (taille (m))²
-      const imcValues = players.map((player) => {
-        const weightKg = player.data.weight / 1000; // Convertir grammes en kg
-        const heightM = player.data.height / 100; // Convertir cm en m
-        return weightKg / (heightM * heightM);
-      });
+      const imcValues = players
+        .map((player) => {
+          const weightKg = player.data.weight / 1000; // Convertir grammes en kg
+          const heightM = player.data.height / 100; // Convertir cm en m
+          
+          // Vérifier les divisions par zéro
+          if (weightKg <= 0) {
+            logger.warn("Poids invalide détecté", {
+              playerId: player.id,
+              playerName: `${player.firstname} ${player.lastname}`,
+              weight: player.data.weight
+            });
+            return null; // Exclure ce joueur du calcul
+          }
+          
+          if (heightM <= 0) {
+            logger.warn("Taille invalide détectée", {
+              playerId: player.id,
+              playerName: `${player.firstname} ${player.lastname}`,
+              height: player.data.height
+            });
+            return null; // Exclure ce joueur du calcul
+          }
+          
+          return weightKg / (heightM * heightM);
+        })
+        .filter((imc): imc is number => imc !== null); // Filtrer les valeurs nulles
+      
+      if (imcValues.length === 0) {
+        throw new Error("Aucun joueur avec des données valides pour calculer l'IMC");
+      }
 
       const averageIMC =
         imcValues.reduce((sum, imc) => sum + imc, 0) / imcValues.length;

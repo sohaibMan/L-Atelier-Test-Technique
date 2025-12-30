@@ -2,7 +2,7 @@
 
 This document describes the comprehensive test suite for the Tennis Player Management API.
 
-## 🧪 Test Structure
+## Test Structure
 
 The test suite is organized into three levels:
 
@@ -24,7 +24,7 @@ The test suite is organized into three levels:
 - **Database**: In-memory MongoDB using `mongodb-memory-server`
 - **Speed**: Slower (5-30 seconds per test)
 
-## 🚀 Running Tests
+## Running Tests
 
 ### Quick Commands
 
@@ -66,31 +66,31 @@ npm run test -- --testNamePattern="should create player"
 npm run test -- tests/unit/playerService.test.ts
 ```
 
-## 📋 Test Coverage
+## Test Coverage
 
 ### What's Tested
 
-#### ✅ Player Creation
+#### Player Creation
 - Valid player data validation
 - Duplicate ID/shortname detection
 - Field validation (age, weight, height, etc.)
 - URL format validation
 - Array length and value validation
 
-#### ✅ Player Retrieval
+#### Player Retrieval
 - Get player by valid ID
 - Handle non-existent players (404)
 - Invalid ID format handling
 - Parameter validation
 
-#### ✅ Statistics Calculation
+#### Statistics Calculation
 - IMC (BMI) calculation accuracy
 - Median height calculation (odd/even counts)
 - Win rate calculation by country
 - Best country determination
 - Edge cases (single player, zero wins)
 
-#### ✅ API Security & Performance
+#### API Security & Performance
 - CORS headers
 - Security headers (Helmet)
 - Rate limiting
@@ -98,7 +98,7 @@ npm run test -- tests/unit/playerService.test.ts
 - Malformed JSON handling
 - Concurrent request handling
 
-#### ✅ Error Handling
+#### Error Handling
 - Validation errors with detailed messages
 - Database connection errors
 - Malformed requests
@@ -111,7 +111,7 @@ npm run test -- tests/unit/playerService.test.ts
 - **Functions**: > 95%
 - **Lines**: > 90%
 
-## 🔧 Test Configuration
+## Test Configuration
 
 ### Jest Configuration (`jest.config.js`)
 - **Environment**: Node.js
@@ -124,7 +124,7 @@ npm run test -- tests/unit/playerService.test.ts
 - Logging level configuration
 - Port configuration for test server
 
-## 📊 Test Data
+## Test Data
 
 ### Sample Player Data
 The tests use realistic tennis player data:
@@ -160,7 +160,7 @@ const validPlayerData = {
 - Concurrent operations
 - Large payloads
 
-## 🎯 Test Scenarios
+## Test Scenarios
 
 ### Complete Workflow Test
 The E2E tests include a comprehensive workflow:
@@ -224,7 +224,7 @@ npm run test -- tests/e2e/players.e2e.test.ts --verbose
 npm run test:coverage -- --verbose
 ```
 
-## 📈 Continuous Integration
+## Continuous Integration
 
 ### GitHub Actions (Recommended)
 ```yaml
@@ -251,7 +251,7 @@ npm install --save-dev husky
 npx husky add .husky/pre-commit "npm run test:ci"
 ```
 
-## 🔍 Test Metrics
+## Test Metrics
 
 ### Performance Benchmarks
 - **Unit Tests**: < 5 seconds total
@@ -265,7 +265,7 @@ npx husky add .husky/pre-commit "npm run test:ci"
 - No console errors or warnings
 - Response times < 100ms for simple operations
 
-## 🚀 Adding New Tests
+## Adding New Tests
 
 ### For New Endpoints
 1. Add unit tests for service logic
@@ -294,7 +294,7 @@ describe("Feature/Component", () => {
 
 ---
 
-## 📞 Support
+## Support
 
 For questions about the test suite:
 1. Check this documentation

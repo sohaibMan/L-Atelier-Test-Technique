@@ -3,6 +3,27 @@ import app from "../../src/app.js";
 
 describe("API Integration Tests - Basic Functionality", () => {
   describe("Health Check & Documentation", () => {
+    it("should return health status", async () => {
+      const response = await request(app)
+        .get("/api/health")
+        .expect(200);
+
+      expect(response.body).toHaveProperty("status", "healthy");
+      expect(response.body).toHaveProperty("timestamp");
+      expect(response.body).toHaveProperty("uptime");
+      expect(response.body).toHaveProperty("version");
+    });
+
+    it("should return database health status", async () => {
+      const response = await request(app)
+        .get("/api/health/db")
+        .expect(503); // 503 car pas de DB connectée dans les tests d'intégration
+
+      expect(response.body).toHaveProperty("status", "unhealthy");
+      expect(response.body).toHaveProperty("timestamp");
+      expect(response.body).toHaveProperty("database");
+    });
+
     it("should serve API documentation at /api-docs", async () => {
       const response = await request(app)
         .get("/api-docs/")
